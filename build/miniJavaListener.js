@@ -1,4 +1,4 @@
-// Generated from grammar/miniJava.g4 by ANTLR 4.7.1
+// Generated from grammar\miniJava.g4 by ANTLR 4.7.1
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 
@@ -53,6 +53,15 @@ miniJavaListener.prototype.enterMethodDeclaration = function(ctx) {
 
 // Exit a parse tree produced by miniJavaParser#methodDeclaration.
 miniJavaListener.prototype.exitMethodDeclaration = function(ctx) {
+};
+
+
+// Enter a parse tree produced by miniJavaParser#type.
+miniJavaListener.prototype.enterType = function(ctx) {
+};
+
+// Exit a parse tree produced by miniJavaParser#type.
+miniJavaListener.prototype.exitType = function(ctx) {
 };
 
 

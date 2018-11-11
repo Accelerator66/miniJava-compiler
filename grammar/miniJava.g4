@@ -3,9 +3,9 @@ grammar miniJava;
 prog : mainClass ( classDeclaration )* ;
 mainClass : 'class' Identifier '{' 'public' 'static' 'void' 'main' '(' 'String' '[' ']' Identifier ')' '{' statement '}' '}' ;
 classDeclaration : 'class' Identifier ( 'extends' Identifier )? '{' ( varDeclaration )* ( methodDeclaration )* '}';
-varDeclaration : Type Identifier ';';
-methodDeclaration : 'public' Type Identifier '(' ( Type Identifier ( ',' Type Identifier )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}';
-Type : 'int' '[' ']'
+varDeclaration : type Identifier ';';
+methodDeclaration : 'public' type Identifier '(' ( type Identifier ( ',' type Identifier )* )? ')' '{' ( varDeclaration )* ( statement )* 'return' expression ';' '}';
+type : 'int' '[' ']'
 | 'boolean'
 | 'int'
 | 'Identifier'
