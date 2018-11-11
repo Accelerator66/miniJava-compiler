@@ -1,0 +1,22 @@
+{
+  "name": "minijava-compiler",
+  "version": "1.0.0",
+  "description": "Compiler frontend for miniJava",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Accelerator66/miniJava-compiler.git"
+  },
+  "author": "Fan shi & Lei Duan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Accelerator66/miniJava-compiler/issues"
+  },
+  "homepage": "https://github.com/Accelerator66/miniJava-compiler#readme",
+  "dependencies": {
+    "antlr4": "^4.7.1"
+  }
+}
