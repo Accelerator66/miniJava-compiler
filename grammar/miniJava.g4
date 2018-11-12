@@ -17,22 +17,23 @@ statement : '{' ( statement )* '}'
 | Identifier '=' expression ';'
 | Identifier '[' expression ']' '=' expression ';'
 ;
-expression :
+expression:
+| '(' expression ')'
 | expression '[' expression ']'
 | expression '.' 'length'
 | expression '.' Identifier '(' ( expression ( ',' expression )* )? ')'
-| Number expression_
-| 'true' expression_
-| 'false' expression_
-| Identifier expression_
-| 'this' expression_
-| 'new' 'int' '[' expression ']' expression_
-| 'new' Identifier '(' ')' expression_
-| '!' expression expression_
-| '(' expression ')' expression_
-;
-expression_ : ( '&&' | '<' | '+' | '-' | '*' ) expression expression_
-|
+| '!' expression
+| 'new' 'int' '[' expression ']'
+| 'new' Identifier '(' ')'
+| expression '*' expression
+| expression ( '+' | '-' ) expression
+| expression '<' expression
+| expression '&&' expression
+| 'true'
+| 'false'
+| 'this'
+| Number
+| Identifier
 ;
 Number : [0-9]+ ;
 Identifier : [a-zA-Z]+ ;

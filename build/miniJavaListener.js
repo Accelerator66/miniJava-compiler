@@ -83,14 +83,5 @@ miniJavaListener.prototype.exitExpression = function(ctx) {
 };
 
 
-// Enter a parse tree produced by miniJavaParser#expression_.
-miniJavaListener.prototype.enterExpression_ = function(ctx) {
-};
-
-// Exit a parse tree produced by miniJavaParser#expression_.
-miniJavaListener.prototype.exitExpression_ = function(ctx) {
-};
-
-
 
 exports.miniJavaListener = miniJavaListener;

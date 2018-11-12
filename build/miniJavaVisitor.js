@@ -60,11 +60,5 @@ miniJavaVisitor.prototype.visitExpression = function(ctx) {
 };
 
 
-// Visit a parse tree produced by miniJavaParser#expression_.
-miniJavaVisitor.prototype.visitExpression_ = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
 
 exports.miniJavaVisitor = miniJavaVisitor;
