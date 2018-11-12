@@ -8,7 +8,7 @@ methodDeclaration : 'public' type Identifier '(' ( type Identifier ( ',' type Id
 type : 'int' '[' ']'
 | 'boolean'
 | 'int'
-| 'Identifier'
+| Identifier
 ;
 statement : '{' ( statement )* '}'
 | 'if' '(' expression ')' statement 'else' statement
@@ -17,7 +17,11 @@ statement : '{' ( statement )* '}'
 | Identifier '=' expression ';'
 | Identifier '[' expression ']' '=' expression ';'
 ;
-expression : Number expression_
+expression :
+| expression '[' expression ']'
+| expression '.' 'length'
+| expression '.' Identifier '(' ( expression ( ',' expression )* )? ')'
+| Number expression_
 | 'true' expression_
 | 'false' expression_
 | Identifier expression_
@@ -27,10 +31,8 @@ expression : Number expression_
 | '!' expression expression_
 | '(' expression ')' expression_
 ;
-expression_ : ( ( '&&' | '<' | '+' | '-' | '*' ) expression )*
-| ( '[' expression ']' )*
-| ( '.' 'length' )*
-| ( '.' Identifier '(' ( expression ( ',' expression )* )? ')' )*
+expression_ : ( '&&' | '<' | '+' | '-' | '*' ) expression expression_
+|
 ;
 Number : [0-9]+ ;
 Identifier : [a-zA-Z]+ ;
