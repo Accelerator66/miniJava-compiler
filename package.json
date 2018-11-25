@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/Accelerator66/miniJava-compiler#readme",
   "dependencies": {
-    "antlr4": "^4.7.1"
+    "antlr4": "^4.7.1",
+    "koa": "^2.6.2",
+    "lodash": "^4.17.11"
   }
 }
