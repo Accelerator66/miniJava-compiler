@@ -17,8 +17,7 @@ statement : '{' ( statement )* '}'
 | Identifier '=' expression ';'
 | Identifier '[' expression ']' '=' expression ';'
 ;
-expression:
-| '(' expression ')'
+expression : '(' expression ')'
 | expression '[' expression ']'
 | expression '.' 'length'
 | expression '.' Identifier '(' ( expression ( ',' expression )* )? ')'
@@ -36,5 +35,5 @@ expression:
 | Identifier
 ;
 Number : [0-9]+ ;
-Identifier : [a-zA-Z]+ ;
+Identifier : [a-zA-Z][a-zA-Z0-9_]* ;
 WS : [ \t\r\n]+ -> skip ;
