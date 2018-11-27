@@ -16,9 +16,17 @@ var isID = function (s) {
     var charCodeLowerMax = 'z'.charCodeAt(0);
     var charCodeUpperMin = 'A'.charCodeAt(0);
     var charCodeUpperMax = 'Z'.charCodeAt(0);
-    for(var i=0; i<s.length; i++){
+    var charCodeNumMin = '0'.charCodeAt(0);
+    var charCodeNumMax = '9'.charCodeAt(0);
+    if((s.charCodeAt(0) < charCodeLowerMin || s.charCodeAt(0) > charCodeLowerMax) &&
+        (s.charCodeAt(0) < charCodeUpperMin || s.charCodeAt(0) > charCodeUpperMax)){
+        return false;
+    }
+    for(var i=1; i<s.length; i++){
         if((s.charCodeAt(i) < charCodeLowerMin || s.charCodeAt(i) > charCodeLowerMax) &&
-            (s.charCodeAt(i) < charCodeUpperMin || s.charCodeAt(i) > charCodeUpperMax)){
+            (s.charCodeAt(i) < charCodeUpperMin || s.charCodeAt(i) > charCodeUpperMax) &&
+            (s.charCodeAt(i) < charCodeNumMin || s.charCodeAt(i) > charCodeNumMax) &&
+            s.charCodeAt(i) !== '_'.charCodeAt(0)){
             return false;
         }
     }
