@@ -5,7 +5,7 @@ function SymbolTableList(){
     return this;
 }
 
-SymbolTableList.prototype.getSymbolType = function(t){
+SymbolTableList.prototype.getSymbol = function(t){
     var stackSize = this.list.length;
     if(stackSize === 0) return undefined;
     var tmp = undefined;
@@ -17,14 +17,54 @@ SymbolTableList.prototype.getSymbolType = function(t){
         return undefined;
     }
     else{
-        return tmp.type;
+        return tmp;
     }
 };
 
-SymbolTableList.prototype.insertSymbol = function(t, type){
+SymbolTableList.prototype.insertVariable = function(t, type){
     var stackSize = this.list.length;
     if(stackSize === 0) return false;
-    return this.list[stackSize-1].insertSymbol(t, type);
+    return this.list[stackSize-1].insertVariable(t, type);
+};
+
+SymbolTableList.prototype.addClass = function(t){
+    var stackSize = this.list.length;
+    if(stackSize === 0) return false;
+    return this.list[stackSize-1].insertClass(t);
+};
+
+SymbolTableList.prototype.addMethodToClass = function(t, className, r, params){
+    var stackSize = this.list.length;
+    if(stackSize === 0) return false;
+    var target = this.getSymbol(className);
+    if(target === undefined) return false;
+    var ind = _.findIndex(target.methods, function(o) { return o.name === t; });
+    if(ind === -1){
+        target.methods.push({
+            name: t,
+            type: 'function',
+            returnType: r,
+            params: params
+        });
+        return true;
+    }
+    else return false;
+};
+
+SymbolTableList.prototype.addVariableToClass = function(t, type, className){
+    var stackSize = this.list.length;
+    if(stackSize === 0) return false;
+    var target = this.getSymbol(className);
+    if(target === undefined) return false;
+    var ind = _.findIndex(target.variables, function(o) { return o.name === t; });
+    if(ind === -1){
+        target.variables.push({
+            name: t,
+            type: type
+        });
+        return true;
+    }
+    else return false;
 };
 
 SymbolTableList.prototype.addTable = function(){
@@ -46,12 +86,28 @@ SymbolTable.prototype.searchSymbol = function(t){
     });
 };
 
-SymbolTable.prototype.insertSymbol = function(t, type){
+SymbolTable.prototype.insertVariable = function(t, type){
     var target = this.searchSymbol(t);
     if(target === undefined){
         this.symbols.push({
             name: t,
             type: type
+        });
+        return true;
+    }
+    else{
+        return false;
+    }
+};
+
+SymbolTable.prototype.insertClass = function(t){
+    var target = this.searchSymbol(t);
+    if(target === undefined){
+        this.symbols.push({
+            name: t,
+            type: 'class',
+            variables: [],
+            methods: []
         });
         return true;
     }

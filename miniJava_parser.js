@@ -5,6 +5,7 @@ var jListener = require('./build/miniJavaListener').miniJavaListener;
 var conVisitor = require('./constructTree').conVisitor;
 var miniJavaErrorListener = require('./miniJavaErrorListener').miniJavaErrorListener;
 var SemanticVisitor = require('./semanticError').SemanticVisitor;
+var DeclarationVisitor = require('./classDeclaration').DeclarationVisitor;
 var fs = require('fs');
 
 var parser = function (input) {
@@ -16,7 +17,10 @@ var parser = function (input) {
     parser.removeErrorListeners();
     parser.addErrorListener(new miniJavaErrorListener());
     var tree = parser.prog();
-    var semVisitor = new SemanticVisitor();
+    var decVisitor = new DeclarationVisitor();
+    decVisitor.visit(tree);
+    // console.log(decVisitor.symbolTable.list[0].symbols[1].variables);
+    var semVisitor = new SemanticVisitor(decVisitor.symbolTable);
     semVisitor.visit(tree);
     // var visitor = new conVisitor();
     // var AST = visitor.visit(tree);

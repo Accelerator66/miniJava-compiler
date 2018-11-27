@@ -1,4 +1,18 @@
 var _ = require('lodash');
+var jLexer = require('./build/miniJavaLexer').miniJavaLexer;
+
+var isKeyWord = function (s) {
+    var keys = jLexer.prototype.literalNames.map(function(e){
+        if(e === null) return null;
+        else{
+            return e.slice(1, e.length-1);
+        }
+    });
+    // console.log(keys);
+    var tmp = _.find(keys, function(o) { return o === s; });
+    if(tmp === undefined) return false;
+    else return true;
+};
 
 var isNum = function (s) {
     if(s.length === 0) return false;
@@ -50,3 +64,4 @@ var filter_undefined = function (array) {
 exports.isID = isID;
 exports.isNum = isNum;
 exports.filter_undefined = filter_undefined;
+exports.isKeyWord = isKeyWord;
