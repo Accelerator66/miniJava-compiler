@@ -19,7 +19,7 @@ var parser = function (input) {
     var tree = parser.prog();
     var decVisitor = new DeclarationVisitor();
     decVisitor.visit(tree);
-    // console.log(decVisitor.symbolTable.list[0].symbols[1].variables);
+    // console.log(decVisitor.symbolTable.list[0]);
     var semVisitor = new SemanticVisitor(decVisitor.symbolTable);
     semVisitor.visit(tree);
     // var visitor = new conVisitor();
@@ -28,7 +28,7 @@ var parser = function (input) {
 };
 
 // var test = 'class BinarySearch { public static void main(String[] a){ test = (5 + 9) * 23 - 5 + 3 * 12; }}';
-var test = fs.readFileSync('./testcase/mytest.java', 'utf8');
+var test = fs.readFileSync('./testcase/BinarySearch.java', 'utf8');
 parser(test);
 
 exports.parser = parser;

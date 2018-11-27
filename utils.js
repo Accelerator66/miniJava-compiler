@@ -61,7 +61,12 @@ var filter_undefined = function (array) {
     return filtered_array;
 };
 
+var semanticErrorPrinter = function(line, e){
+    console.log('[Line ' + line + ']' + e);
+}
+
 exports.isID = isID;
 exports.isNum = isNum;
 exports.filter_undefined = filter_undefined;
 exports.isKeyWord = isKeyWord;
+exports.semanticErrorPrinter = semanticErrorPrinter;
