@@ -22,14 +22,11 @@ var parser = function (input) {
     // console.log(decVisitor.symbolTable.list[0]);
     var semVisitor = new SemanticVisitor(decVisitor.symbolTable);
     semVisitor.visit(tree);
-    // var visitor = new conVisitor();
-    // var AST = visitor.visit(tree);
-    // return AST.toPrinter();
+    var visitor = new conVisitor();
+    var AST = visitor.visit(tree);
+    return AST.toPrinter();
 };
 
 // var test = 'class BinarySearch { public static void main(String[] a){ test = (5 + 9) * 23 - 5 + 3 * 12; }}';
-var test = fs.readFileSync('./testcase/BinarySearch.java', 'utf8');
-parser(test);
-
 exports.parser = parser;
 

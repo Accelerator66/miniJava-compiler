@@ -1,148 +1,269 @@
 <!DOCTYPE html>
 <html style="height: 100%">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Local View</title>
-    <meta name="description" content="In one diagram show the whole tree and in a second diagram show a subset that is logically near a selected node." />
-    <!-- Copyright 1998-2018 by Northwoods Software Corporation. -->
-    <meta charset="UTF-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/1.8.33/go.js"></script>
-    <script id="code">
-        function init() {
-            if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-            var $ = go.GraphObject.make;  // for conciseness in defining templates
-            myFullDiagram =
-                $(go.Diagram, "fullDiagram",  // each diagram refers to its DIV HTML element by id
-                    {
-                        initialAutoScale: go.Diagram.UniformToFill,  // automatically scale down to show whole tree
-                        maxScale: 0.25,
-                        contentAlignment: go.Spot.Center,  // center the tree in the viewport
-                        isReadOnly: true,  // don't allow user to change the diagram
-                        "animationManager.isEnabled": false,
-                        layout: $(go.TreeLayout,
-                            { angle: 90, sorting: go.TreeLayout.SortingAscending }),
-                        maxSelectionCount: 1,  // only one node may be selected at a time in each diagram
-                        // when the selection changes, update the myLocalDiagram view
-                        "ChangedSelection": showLocalOnFullClick
-                    });
-            myLocalDiagram =  // this is very similar to the full Diagram
-                $(go.Diagram, "localDiagram",
-                    {
-                        autoScale: go.Diagram.UniformToFill,
-                        contentAlignment: go.Spot.Center,
-                        isReadOnly: true,
-                        layout: $(go.TreeLayout,
-                            { angle: 90, sorting: go.TreeLayout.SortingAscending }),
-                        "LayoutCompleted": function(e) {
-                            var sel = e.diagram.selection.first();
-                            if (sel !== null) myLocalDiagram.scrollToRect(sel.actualBounds);
-                        },
-                        maxSelectionCount: 1,
-                        // when the selection changes, update the contents of the myLocalDiagram
-                        "ChangedSelection": showLocalOnLocalClick
-                    });
-            // Define a node template that is shared by both diagrams
-            var myNodeTemplate =
-                $(go.Node, "Auto",
-                    { locationSpot: go.Spot.Center },
-                    new go.Binding("text", "key", go.Binding.toString),  // for sorting
-                    $(go.Shape, "Rectangle",
-                        new go.Binding("fill", "color"),
-                        { stroke: null }),
-                    $(go.TextBlock,
-                        { margin: 5 },
-                        new go.Binding("text", "name", function(k) { return k; }))
-                );
-            myFullDiagram.nodeTemplate = myNodeTemplate;
-            myLocalDiagram.nodeTemplate = myNodeTemplate;
-            // Define a basic link template, not selectable, shared by both diagrams
-            var myLinkTemplate =
-                $(go.Link,
-                    { routing: go.Link.Normal, selectable: false },
-                    $(go.Shape,
-                        { strokeWidth: 1 })
-                );
-            myFullDiagram.linkTemplate = myLinkTemplate;
-            myLocalDiagram.linkTemplate = myLinkTemplate;
-            // Create the full tree diagram
-            fetch('http://localhost:3000')
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(printer) {
-                    console.log(printer);
-                    myFullDiagram.model = new go.TreeModel(printer);
-                    // Create a part in the background of the full diagram to highlight the selected node
-                    highlighter =
-                        $(go.Part, "Auto",
-                            {
-                                layerName: "Background",
-                                selectable: false,
-                                isInDocumentBounds: false,
-                                locationSpot: go.Spot.Center
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Local View</title>
+        <meta name="description" content="In one diagram show the whole tree and in a second diagram show a subset that is logically near a selected node." />
+        <!-- Copyright 1998-2018 by Northwoods Software Corporation. -->
+        <meta charset="UTF-8">
+        <script src="go.js"></script>
+        <script id="code">
+            function init() {
+                if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+                var $ = go.GraphObject.make;  // for conciseness in defining templates
+                myFullDiagram =
+                    $(go.Diagram, "fullDiagram",  // each diagram refers to its DIV HTML element by id
+                        {
+                            initialAutoScale: go.Diagram.UniformToFill,  // automatically scale down to show whole tree
+                            maxScale: 0.25,
+                            contentAlignment: go.Spot.Center,  // center the tree in the viewport
+                            isReadOnly: true,  // don't allow user to change the diagram
+                            "animationManager.isEnabled": false,
+                            layout: $(go.TreeLayout,
+                                { angle: 90, sorting: go.TreeLayout.SortingAscending }),
+                            maxSelectionCount: 1,  // only one node may be selected at a time in each diagram
+                            // when the selection changes, update the myLocalDiagram view
+                            "ChangedSelection": showLocalOnFullClick
+                        });
+                myLocalDiagram =  // this is very similar to the full Diagram
+                    $(go.Diagram, "localDiagram",
+                        {
+                            autoScale: go.Diagram.UniformToFill,
+                            contentAlignment: go.Spot.Center,
+                            isReadOnly: true,
+                            layout: $(go.TreeLayout,
+                                { angle: 90, sorting: go.TreeLayout.SortingAscending }),
+                            "LayoutCompleted": function(e) {
+                                var sel = e.diagram.selection.first();
+                                if (sel !== null) myLocalDiagram.scrollToRect(sel.actualBounds);
                             },
-                            $(go.Shape, "Ellipse",
+                            maxSelectionCount: 1,
+                            // when the selection changes, update the contents of the myLocalDiagram
+                            "ChangedSelection": showLocalOnLocalClick
+                        });
+                // Define a node template that is shared by both diagrams
+                var myNodeTemplate =
+                    $(go.Node, "Auto",
+                        { locationSpot: go.Spot.Center },
+                        new go.Binding("text", "key", go.Binding.toString),  // for sorting
+                        $(go.Shape, "Rectangle",
+                            new go.Binding("fill", "color"),
+                            { stroke: null }),
+                        $(go.TextBlock,
+                            { margin: 5 },
+                            new go.Binding("text", "name", function(k) { return k; }))
+                    );
+                myFullDiagram.nodeTemplate = myNodeTemplate;
+                myLocalDiagram.nodeTemplate = myNodeTemplate;
+                // Define a basic link template, not selectable, shared by both diagrams
+                var myLinkTemplate =
+                    $(go.Link,
+                        { routing: go.Link.Normal, selectable: false },
+                        $(go.Shape,
+                            { strokeWidth: 1 })
+                    );
+                myFullDiagram.linkTemplate = myLinkTemplate;
+                myLocalDiagram.linkTemplate = myLinkTemplate;
+                // Create the full tree diagram
+                fetch('http://localhost:3000')
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(printer) {
+                        console.log(printer);
+                        myFullDiagram.model = new go.TreeModel(printer);
+                        // Create a part in the background of the full diagram to highlight the selected node
+                        highlighter =
+                            $(go.Part, "Auto",
                                 {
-                                    fill: $(go.Brush, "Radial", { 0.0: "yellow", 1.0: "white" }),
-                                    stroke: null,
-                                    desiredSize: new go.Size(400, 400)
-                                })
-                        );
-                    myFullDiagram.add(highlighter);
-                    // Start by focusing the diagrams on the node at the top of the tree.
-                    // Wait until the tree has been laid out before selecting the root node.
-                    myFullDiagram.addDiagramListener("InitialLayoutCompleted", function(e) {
-                        var node0 = myFullDiagram.findPartForKey(0);
-                        if (node0 !== null) node0.isSelected = true;
-                        showLocalOnFullClick();
+                                    layerName: "Background",
+                                    selectable: false,
+                                    isInDocumentBounds: false,
+                                    locationSpot: go.Spot.Center
+                                },
+                                $(go.Shape, "Ellipse",
+                                    {
+                                        fill: $(go.Brush, "Radial", { 0.0: "yellow", 1.0: "white" }),
+                                        stroke: null,
+                                        desiredSize: new go.Size(400, 400)
+                                    })
+                            );
+                        myFullDiagram.add(highlighter);
+                        // Start by focusing the diagrams on the node at the top of the tree.
+                        // Wait until the tree has been laid out before selecting the root node.
+                        myFullDiagram.addDiagramListener("InitialLayoutCompleted", function(e) {
+                            var node0 = myFullDiagram.findPartForKey(0);
+                            if (node0 !== null) node0.isSelected = true;
+                            showLocalOnFullClick();
+                        });
                     });
-                });
-        }
-        // Make the corresponding node in the full diagram to that selected in the local diagram selected,
-        // then call showLocalOnFullClick to update the local diagram.
-        function showLocalOnLocalClick() {
-            var selectedLocal = myLocalDiagram.selection.first();
-            if (selectedLocal !== null) {
-                // there are two separate Nodes, one for each Diagram, but they share the same key value
-                myFullDiagram.select(myFullDiagram.findPartForKey(selectedLocal.data.key));
             }
-        }
-        function showLocalOnFullClick() {
-            var node = myFullDiagram.selection.first();
-            if (node !== null) {
-                // make sure the selected node is in the viewport
-                myFullDiagram.scrollToRect(node.actualBounds);
-                // move the large yellow node behind the selected node to highlight it
-                highlighter.location = node.location;
-                // create a new model for the local Diagram
-                var model = new go.TreeModel();
-                // add the selected node and its children and grandchildren to the local diagram
-                var nearby = node.findTreeParts(3);  // three levels of the (sub)tree
-                // add parent and grandparent
-                var parent = node.findTreeParentNode();
-                if (parent !== null) {
-                    nearby.add(parent);
-                    var grandparent = parent.findTreeParentNode();
-                    if (grandparent !== null) {
-                        nearby.add(grandparent);
-                    }
+            // Make the corresponding node in the full diagram to that selected in the local diagram selected,
+            // then call showLocalOnFullClick to update the local diagram.
+            function showLocalOnLocalClick() {
+                var selectedLocal = myLocalDiagram.selection.first();
+                if (selectedLocal !== null) {
+                    // there are two separate Nodes, one for each Diagram, but they share the same key value
+                    myFullDiagram.select(myFullDiagram.findPartForKey(selectedLocal.data.key));
                 }
-                // create the model using the same node data as in myFullDiagram's model
-                nearby.each(function(n) {
-                    if (n instanceof go.Node) model.addNodeData(n.data);
-                });
-                myLocalDiagram.model = model;
-                // select the node at the diagram's focus
-                var selectedLocal = myLocalDiagram.findPartForKey(node.data.key);
-                if (selectedLocal !== null) selectedLocal.isSelected = true;
             }
-        }
-    </script>
-</head>
-<body onload="init()" style="height: 100%">
-<div id="sample" style="height: 100%">
-    <div id="fullDiagram" style="height: 45%;width:100%;border:1px solid black;margin:2px"></div>
-    <div id="localDiagram" style="height: 45%;width:100%;border:1px solid black;margin:2px"></div>
-</div>
-</body>
+            function showLocalOnFullClick() {
+                var node = myFullDiagram.selection.first();
+                if (node !== null) {
+                    // make sure the selected node is in the viewport
+                    myFullDiagram.scrollToRect(node.actualBounds);
+                    // move the large yellow node behind the selected node to highlight it
+                    highlighter.location = node.location;
+                    // create a new model for the local Diagram
+                    var model = new go.TreeModel();
+                    // add the selected node and its children and grandchildren to the local diagram
+                    var nearby = node.findTreeParts(3);  // three levels of the (sub)tree
+                    // add parent and grandparent
+                    var parent = node.findTreeParentNode();
+                    if (parent !== null) {
+                        nearby.add(parent);
+                        var grandparent = parent.findTreeParentNode();
+                        if (grandparent !== null) {
+                            nearby.add(grandparent);
+                        }
+                    }
+                    // create the model using the same node data as in myFullDiagram's model
+                    nearby.each(function(n) {
+                        if (n instanceof go.Node) model.addNodeData(n.data);
+                    });
+                    myLocalDiagram.model = model;
+                    // select the node at the diagram's focus
+                    var selectedLocal = myLocalDiagram.findPartForKey(node.data.key);
+                    if (selectedLocal !== null) selectedLocal.isSelected = true;
+                }
+            }
+        </script>
+    </head>
+    <body onload="init()" style="height:100%;width:100%">
+        <div id="sample" style="float: left;height: 100%;width:60%">
+            <div id="fullDiagram" style="height: 45%;width:100%;border:1px solid black;margin:2px"></div>
+            <div id="localDiagram" style="height: 45%;width:100%;border:1px solid black;margin:2px"></div>
+        </div>
+        <div style="float: left;height:100%;width:38%;margin-left:2%">
+            <div style="height:80%">
+            </div>
+            <div style="height:20%;text-align:center;padding-left:30%">
+                <div class="dark-header"></div>
+                <a href="#" class="button lightbg-blue clearfix">
+                    <span>Run</span>
+                    <div class="icon">
+                        <div class="arrow">
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </body>
 </html>
+<style>
+.dark-header {
+    font-size: 32px;
+    color: #303030;
+    text-shadow: rgba(255,255,255,0.85) 1px 1px 0px;
+    line-height: 1em;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+.light-header {
+    font-size: 32px;
+    color: #f0f0f0;
+    text-shadow: rgba(0,0,0,0.85) 1px 1px 0px;
+    line-height: 1em;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+.left {
+    float: left;    
+}
+.right {
+    float: right;   
+}
+.light-buttons {
+    width: 40%;
+    padding-right: 10%;
+    float: left;
+}
+.dark-buttons {
+    width: 40%;
+    padding-left: 10%;
+    float: left;
+}
+/*****Buttons*****/
+.button {
+    width: 9.5em;
+    display: block;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ie-border-radius: 6px;
+    border-radius: 6px;
+    padding: .48em .8em;
+    text-shadow: rgba(0,0,0,.5) 0px -1px 0px;
+    font-size: 18px;
+    font-weight: 700;
+    -webkit-transition-property: background-color;
+    -webkit-transition-duration: .15s;
+    -webkit-transition-timing-function: ease-in-out;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+.button:active {
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+.button span {
+    vertical-align: middle;
+}
+.icon {
+    width: 26px;
+    height: 26px;
+    -webkit-border-radius: 13px;
+    -moz-border-radius: 13px;
+    -ie-border-radius: 13px;
+    border-radius: 13px;
+    background: rgba(0,0,0,.3);
+    float: right;
+    -webkit-box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2) inset, 0px 0px 0px 1px rgba(255,255,255,.2);
+    -moz-box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2) inset, 0px 0px 0px 1px rgba(255,255,255,.2);
+    -ie-box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2) inset, 0px 0px 0px 1px rgba(255,255,255,.2);
+    box-shadow: 0px 3px 0px 0px rgba(0,0,0,.2) inset, 0px 0px 0px 1px rgba(255,255,255,.2);
+}
+.arrow {
+    margin: 7px 0px 0 8px;
+    -webkit-border-style: solid;
+    -moz-border-style: solid;
+    -ie-border-style: solid;
+    border-style: solid;
+    border-width:6px 6px 6px 12px;
+    width: 0;
+    height: 0;
+}
+/********Light Background Colors********/
+/*Blue*/
+.lightbg-blue {
+    background-color: #64a8a6;
+    color: #dafffe;
+    -webkit-box-shadow: 0px 0px 0px 1px #4e8381 inset, 0px 0px 0px 2px #74b6b4 inset, 0px 4px 0px 0px #4a7c7b, 0px 5px 0px 0px #355655, 0px 8px 0px 0px rgba(0,0,0,.15);
+    -moz-box-shadow: 0px 0px 0px 1px #4e8381 inset, 0px 0px 0px 2px #74b6b4 inset, 0px 4px 0px 0px #4a7c7b, 0px 5px 0px 0px #355655, 0px 8px 0px 0px rgba(0,0,0,.15);
+    -ie-box-shadow: 0px 0px 0px 1px #4e8381 inset, 0px 0px 0px 2px #74b6b4 inset, 0px 4px 0px 0px #4a7c7b, 0px 5px 0px 0px #355655, 0px 8px 0px 0px rgba(0,0,0,.15);
+    box-shadow: 0px 0px 0px 1px #4e8381 inset, 0px 0px 0px 2px #74b6b4 inset, 0px 4px 0px 0px #4a7c7b, 0px 5px 0px 0px #355655, 0px 8px 0px 0px rgba(0,0,0,.15);
+}
+.lightbg-blue:hover {
+    background-color: #73c2c0;
+}
+.lightbg-blue:active {
+    background-color: #5a9896;
+    -webkit-box-shadow: 0px 0px 0px 1px #589391 inset, 0px 0px 0px 2px #65a9a7 inset, 0px 1px 0px 0px #355655, 0px 3px 0px 0px rgba(0,0,0,.15);
+    -moz-box-shadow: 0px 0px 0px 1px #589391 inset, 0px 0px 0px 2px #65a9a7 inset, 0px 1px 0px 0px #355655, 0px 3px 0px 0px rgba(0,0,0,.15);
+    -ie-box-shadow: 0px 0px 0px 1px #589391 inset, 0px 0px 0px 2px #65a9a7 inset, 0px 1px 0px 0px #355655, 0px 3px 0px 0px rgba(0,0,0,.15);
+    box-shadow: 0px 0px 0px 1px #589391 inset, 0px 0px 0px 2px #65a9a7 inset, 0px 1px 0px 0px #355655, 0px 3px 0px 0px rgba(0,0,0,.15);
+}
+.lightbg-blue .arrow {
+    border-color: transparent transparent transparent #74b6b4;
+}
+</style>

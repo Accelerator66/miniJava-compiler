@@ -19,6 +19,7 @@
   "dependencies": {
     "antlr4": "^4.7.1",
     "koa": "^2.6.2",
+    "koa-cors": "0.0.16",
     "lodash": "^4.17.11"
   }
 }
