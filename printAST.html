@@ -8,7 +8,7 @@
         <meta charset="UTF-8">
         <script src="go.js"></script>
         <script id="code">
-            function init() {
+            function init(fileName) {
                 if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
                 var $ = go.GraphObject.make;  // for conciseness in defining templates
                 myFullDiagram =
@@ -65,13 +65,14 @@
                 myFullDiagram.linkTemplate = myLinkTemplate;
                 myLocalDiagram.linkTemplate = myLinkTemplate;
                 // Create the full tree diagram
-                fetch('http://localhost:3000')
+                fetch('http://localhost:3000/' + fileName.toString())
                     .then(function(response) {
                         return response.json();
                     })
                     .then(function(printer) {
-                        console.log(printer);
-                        myFullDiagram.model = new go.TreeModel(printer);
+                        var tree = printer.tree;
+                        var text = printer.rawText;
+                        myFullDiagram.model = new go.TreeModel(printer.tree);
                         // Create a part in the background of the full diagram to highlight the selected node
                         highlighter =
                             $(go.Part, "Auto",
@@ -137,9 +138,25 @@
                     if (selectedLocal !== null) selectedLocal.isSelected = true;
                 }
             }
+            function myClick() {
+                var dir_path = document.getElementById('textfield').value;
+                var path = dir_path.split('\\')
+                var fileName = path[path.length - 1];
+                var $ = go.GraphObject.make;  // for conciseness in defining templates
+                fetch('http://localhost:3000/' + fileName.toString())
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(printer) {
+                        var tree = printer.tree;
+                        var text = printer.rawText;
+                        console.log(tree);
+                        myFullDiagram.model = new go.TreeModel(printer.tree);
+                    });
+            }
         </script>
     </head>
-    <body onload="init()" style="height:100%;width:100%">
+    <body onload="init('mytest.java')" style="height:100%;width:100%">
         <div id="sample" style="float: left;height: 100%;width:60%">
             <div id="fullDiagram" style="height: 45%;width:100%;border:1px solid black;margin:2px"></div>
             <div id="localDiagram" style="height: 45%;width:100%;border:1px solid black;margin:2px"></div>
@@ -148,8 +165,11 @@
             <div style="height:80%">
             </div>
             <div style="height:20%;text-align:center;padding-left:30%">
+                <form action="" method="post" enctype="multipart/form-data" id='myForm'>
+                    <input type='file' name='textfield' id='textfield'/>
+                </form>
                 <div class="dark-header"></div>
-                <a href="#" class="button lightbg-blue clearfix">
+                <a href="#" class="button lightbg-blue clearfix" onclick="myClick()">
                     <span>Run</span>
                     <div class="icon">
                         <div class="arrow">

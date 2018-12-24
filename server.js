@@ -6,8 +6,9 @@ const app = new Koa();
 
 app.use(cors())
 
-app.use(function(ctx) {
-    var input = fs.readFileSync('testcase/Factorial.java', 'utf8');
+app.use(async(ctx) => {
+    input = ctx.url.toString();
+    input = fs.readFileSync('./testcase/' + input.substr(1), 'utf8');
     // var input = "class BinarySearch { public static void main(String[] a){ test = (5 + 9) * 23 - 5 + 3 * 12; }}";
     var tree = parser(input);
     // console.log(tree);
@@ -28,7 +29,8 @@ app.use(function(ctx) {
         }
     }
     convertTree(tree, null);
-    ctx.response.body = JSON.stringify(nodeArray);
+    var responser = {'tree': nodeArray, 'rawText': input}
+    ctx.response.body = JSON.stringify(responser)
 });
 
 app.listen(3000);
