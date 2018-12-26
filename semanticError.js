@@ -9,6 +9,7 @@ var SemanticVisitor = function(symbols) {
     else this.symbolTable = symbols;
     this.currentThis = null;
     this.isInFunction = false;
+    this.errors = [];
     return this;
 };
 
@@ -43,6 +44,10 @@ SemanticVisitor.prototype.visitClassDeclaration = function(ctx) {
             var position = ctx.start.line;
             var message = className + ' extends unknown class ' + extendClassName;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
     this.symbolTable.addTable();
@@ -62,12 +67,20 @@ SemanticVisitor.prototype.visitVarDeclaration = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown type: ' + type;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
     if(this.symbolTable.insertVariable(id, type) === false) {
         var position = ctx.start.line;
         var message = 'Duplicated declaration variable: ' + id;
         utils.semanticErrorPrinter(position, message);
+        this.errors.push({
+            line: position,
+            info: message
+        });
     }
     this.visitChildren(ctx);
 };
@@ -83,6 +96,10 @@ SemanticVisitor.prototype.visitMethodDeclaration = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown type ' + returnType + ' of return value in method: ' + methodName;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
     this.symbolTable.addTable();
@@ -98,12 +115,20 @@ SemanticVisitor.prototype.visitMethodDeclaration = function(ctx) {
                     var position = ctx.start.line;
                     var message = 'Unknown type ' + paramType + ' of parameter in method: ' + methodName;
                     utils.semanticErrorPrinter(position, message);
+                    this.errors.push({
+                        line: position,
+                        info: message
+                    });
                 }
             }
             if (this.symbolTable.insertVariable(paramName, paramType) === false) {
                 var position = ctx.start.line;
                 var message = 'Duplicated parameter ' + paramName + ' in method ' + methodName;
                 utils.semanticErrorPrinter(position, message);
+                this.errors.push({
+                    line: position,
+                    info: message
+                });
             }
         }
     }
@@ -133,6 +158,10 @@ SemanticVisitor.prototype.visitStatement = function(ctx) {
             var position = ctx.start.line;
             var message = 'Condition sentence should be boolean type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
     // while ( expression ) statement
@@ -142,6 +171,10 @@ SemanticVisitor.prototype.visitStatement = function(ctx) {
             var position = ctx.start.line;
             var message = 'Condition sentence should be boolean type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
     else if(ctx.getChild(0).getText() === 'System.out.println'){
@@ -155,12 +188,20 @@ SemanticVisitor.prototype.visitStatement = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown variable: ' + id;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         var types = utils.filter_undefined(this.visitChildren(ctx));
         if(obj !== undefined && obj.type !== types){
             var position = ctx.start.line;
             var message = 'Different types in assign operator';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
     // Identifier [ expression ] = expression ;
@@ -171,22 +212,38 @@ SemanticVisitor.prototype.visitStatement = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown variable: ' + arrayId;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         else if(array.type !== 'int[]'){
             var position = ctx.start.line;
             var message = arrayId + ' is not an array';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         var types = utils.filter_undefined(this.visitChildren(ctx));
         if(types[0] !== 'int'){
             var position = ctx.start.line;
             var message = 'Index should be type int';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'int'){
             var position = ctx.start.line;
             var message = 'Different types in assign operator';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
     }
 };
@@ -201,11 +258,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Only type int[] can be indexed';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'int'){
             var position = ctx.start.line;
             var message = 'Index should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'int';
     }
@@ -215,11 +280,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Param1 in * should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'int'){
             var position = ctx.start.line;
             var message = 'Param2 in * should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'int';
     }
@@ -229,11 +302,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Param1 in + should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'int'){
             var position = ctx.start.line;
             var message = 'Param2 in + should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'int';
     }
@@ -243,11 +324,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Param1 in - should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'int'){
             var position = ctx.start.line;
             var message = 'Param2 in - should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'int';
     }
@@ -257,11 +346,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Param1 in < should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'int'){
             var position = ctx.start.line;
             var message = 'Param2 in < should be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'boolean';
     }
@@ -271,11 +368,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Param1 in && should be boolean type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         if(types[1] !== 'boolean'){
             var position = ctx.start.line;
             var message = 'Param2 in && should be boolean type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'boolean';
     }
@@ -287,6 +392,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = '. operator can only be used to class type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         var classObj = this.symbolTable.getSymbol(types[0]);
         var methodId = ctx.getChild(2).getText();
@@ -294,6 +403,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown class ' + types[0];
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         else{
             var ind = _.findIndex(classObj.methods, function(o) { return o.name === methodId; });
@@ -301,6 +414,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
                 var position = ctx.start.line;
                 var message = 'Class ' + classObj.name + ' has no method ' + methodId;
                 utils.semanticErrorPrinter(position, message);
+                this.errors.push({
+                    line: position,
+                    info: message
+                });
             }
             else{
                 var methodObj = classObj.methods[ind];
@@ -311,6 +428,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
                     var position = ctx.start.line;
                     var message = 'Parameters of method ' + methodId + ' is wrong';
                     utils.semanticErrorPrinter(position, message);
+                    this.errors.push({
+                        line: position,
+                        info: message
+                    });
                 }
             }
         }
@@ -324,11 +445,19 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown class: ' + classId;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         else if(classObj.type !== 'class'){
             var position = ctx.start.line;
             var message = classId + ' is not an class';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         this.visitChildren(ctx);
         return classId;
@@ -345,6 +474,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Only type int[] has length';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'int';
     }
@@ -355,6 +488,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = '! operator can only followed by boolean type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'boolean';
     }
@@ -365,6 +502,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Array length can only be int type';
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         return 'int[]';
     }
@@ -384,6 +525,10 @@ SemanticVisitor.prototype.visitExpression = function(ctx) {
             var position = ctx.start.line;
             var message = 'Unknown identifier: ' + id;
             utils.semanticErrorPrinter(position, message);
+            this.errors.push({
+                line: position,
+                info: message
+            });
         }
         else{
             if(obj.type === 'class') return id;

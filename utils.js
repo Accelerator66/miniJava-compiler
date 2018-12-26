@@ -1,6 +1,11 @@
 var _ = require('lodash');
 var jLexer = require('./build/miniJavaLexer').miniJavaLexer;
 
+var errors = function(){
+    this.arrays = [];
+    return this;
+};
+
 var isKeyWord = function (s) {
     var keys = jLexer.prototype.literalNames.map(function(e){
         if(e === null) return null;
@@ -65,6 +70,7 @@ var semanticErrorPrinter = function(line, e){
     console.log('[Line ' + line + ']' + e);
 }
 
+exports.errors = errors;
 exports.isID = isID;
 exports.isNum = isNum;
 exports.filter_undefined = filter_undefined;

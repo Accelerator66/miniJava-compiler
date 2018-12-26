@@ -7,6 +7,7 @@ var DeclarationVisitor = function() {
     this.symbolTable = new SymbolTableList();
     this.currentClass = null;
     this.isInFunction = false;
+    this.errors = [];
     return this;
 };
 
@@ -34,6 +35,10 @@ DeclarationVisitor.prototype.visitClassDeclaration = function(ctx) {
     if(this.symbolTable.addClass(className) === false){
         var position = ctx.start.line;
         utils.semanticErrorPrinter(position, 'Duplicated class declaration: ' + className);
+        this.errors.push({
+            line: position,
+            info: 'Duplicated class declaration: ' + className 
+        });
     }
     this.currentClass = className;
     this.visitChildren(ctx);
@@ -48,6 +53,10 @@ DeclarationVisitor.prototype.visitVarDeclaration = function(ctx) {
         if(this.symbolTable.addVariableToClass(id, type, this.currentClass) === false){
             var position = ctx.start.line;
             utils.semanticErrorPrinter(position, 'Duplicated declaration variable: ' + id);
+            this.errors.push({
+                line: position,
+                info: 'Duplicated class variable: ' + id 
+            });
         }
     }
     this.visitChildren(ctx);
@@ -69,6 +78,10 @@ DeclarationVisitor.prototype.visitMethodDeclaration = function(ctx) {
     if(this.symbolTable.addMethodToClass(methodName, this.currentClass, r, params) === false){
         var position = ctx.start.line;
         utils.semanticErrorPrinter(position, 'Duplicated declaration method: ' + methodName);
+        this.errors.push({
+            line: position,
+            info: 'Duplicated declaration method: ' + methodName
+        });
     }
     this.isInFunction = true;
     this.visitChildren(ctx);

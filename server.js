@@ -10,7 +10,9 @@ app.use(async(ctx) => {
     input = ctx.url.toString();
     input = fs.readFileSync('./testcase/' + input.substr(1), 'utf8');
     // var input = "class BinarySearch { public static void main(String[] a){ test = (5 + 9) * 23 - 5 + 3 * 12; }}";
-    var tree = parser(input);
+    var tmp = parser(input);
+    var tree = tmp.tree;
+    var errs = tmp.errs;
     // console.log(tree);
     var nodeArray = [];
     function convertTree(root, parent_id){
@@ -29,8 +31,8 @@ app.use(async(ctx) => {
         }
     }
     convertTree(tree, null);
-    var responser = {'tree': nodeArray, 'rawText': input}
-    ctx.response.body = JSON.stringify(responser)
+    var responser = {'tree': nodeArray, 'rawText': input, 'errors': errs};
+    ctx.response.body = JSON.stringify(responser);
 });
 
 app.listen(3000);
